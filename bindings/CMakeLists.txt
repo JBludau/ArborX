@@ -1,5 +1,13 @@
+project(pyArborX)
+
 add_subdirectory(/pybind11 /root/lib/pybind11)
 find_package(ArborX REQUIRED)
 
-PYBIND11_ADD_MODULE(pyArborX_st-jude ArborX_st-jude.cpp)
-target_link_libraries(pyArborX_st-jude PRIVATE ArborX::ArborX)
+include_directories(".")
+
+add_subdirectory(./Point)
+add_subdirectory(./Box)
+
+# PYBIND11_ADD_MODULE(pyArborX pyArborX.cpp)
+# set_target_properties(pyArborX PROPERTIES OUTPUT_NAME pyArborX)
+# target_link_libraries(pyArborX PRIVATE ArborX::ArborX)
