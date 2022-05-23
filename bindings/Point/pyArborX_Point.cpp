@@ -5,7 +5,9 @@
 #include <pybind11/functional.h>
 #include <pybind11/operators.h>
 
-#include <ArborX.hpp>
+#include <ArborX_Point.hpp>
+
+#include "../config.hpp"
 
 #include "pyArborX_Point_Util.hpp" 
 

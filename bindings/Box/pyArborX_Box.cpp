@@ -7,6 +7,8 @@
 
 #include <ArborX_Box.hpp>
 
+#include "../config.hpp"
+
 #include "pyArborX_Box_Util.hpp" 
 
 namespace py = pybind11;
