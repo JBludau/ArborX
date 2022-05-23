@@ -7,6 +7,7 @@ include_directories(".")
 
 add_subdirectory(./Point)
 add_subdirectory(./Box)
+add_subdirectory(./BVH)
 
 # PYBIND11_ADD_MODULE(pyArborX pyArborX.cpp)
 # set_target_properties(pyArborX PROPERTIES OUTPUT_NAME pyArborX)
