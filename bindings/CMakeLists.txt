@@ -7,7 +7,7 @@ find_package(ArborX REQUIRED)
 include_directories(".")
 
 # definition of submodules included in build
-set(PY_MODULES Point Box Experimental BVH)
+set(PY_MODULES Point Box Experimental BVH PointView)
 
 #generator for top level module file to be loaded in python
 foreach(PY_MODULE IN LISTS PY_MODULES)
