@@ -10,7 +10,8 @@
 
 
 // instantiation of all template arguments by hand, as there is no interface for these ... for now
-using ExecutionSpace = Kokkos::DefaultExecutionSpace;
+// using ExecutionSpace = Kokkos::DefaultExecutionSpace;
+using ExecutionSpace = Kokkos::OpenMP;
 using MemorySpace = ExecutionSpace::memory_space;
 // using MemorySpace = Kokkos::CudaUVMSpace;
 
