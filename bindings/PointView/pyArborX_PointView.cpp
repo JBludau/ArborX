@@ -7,27 +7,22 @@
 
 #include <ArborX_Point.hpp>
 
-#include "config.hpp"
+#include "pyArborX_PointView_Util.hpp"
 
-using PointView = Kokkos::View<ArborX::Point *,MemorySpace>;
 
 namespace py = pybind11;
 
-template<typename ViewType>
-ViewType allocWithoutInitialize (std::string name ,unsigned long int size)
-{
-  return ViewType(Kokkos::view_alloc(
-                                    ExecutionSpace{},
-                                    Kokkos::WithoutInitializing,
-                                    name)
-                 ,size);
-}
 
 PYBIND11_MODULE(PointView, m) {
 
     m.attr("__name__") = "pyArborX.PointView";
     py::class_<PointView>(m,"PointView")
       .def(py::init<>())
+      .def(py::init([](std::string label,size_t size){return new PointView{Kokkos::view_alloc(
+                                                                           ExecutionSpace{},
+                                                                           Kokkos::WithoutInitializing,
+                                                                           label
+                                                                           ),size};}))
 
       .def("__getitem__",
           [](PointView& p,long unsigned int idx){ return p(idx);}
@@ -37,11 +32,12 @@ PYBIND11_MODULE(PointView, m) {
           [](PointView& p,long unsigned int idx, ArborX::Point val){p(idx)=val;}
           );
 
-    m.def("allocWithoutInitialize",&allocWithoutInitialize<PointView>,py::arg("name"),py::arg("size"));
+    m.def("create_mirror_view",&create_mirror_view<PointView>,py::arg("source"));
+    m.def("deep_copy",&deep_copy<PointView,PointView>,py::arg("dest"),py::arg("src"));
+    // m.def("allocWithoutInitialize",&allocWithoutInitialize<PointView>,py::arg("name"),py::arg("size"),py::return_value_policy::move);
           
 }
 
 
 #endif
 
-//TODO: think again about if the interface should copy the values ... this would be a deviation of the interface of the original library
