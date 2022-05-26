@@ -32,6 +32,12 @@ PYBIND11_MODULE(Util, m) {
 
     m.def("generateWithinQueries_device",&generateWithinQueries_device,py::arg("ExecutionSpace"),py::arg("Primitives"),py::arg("size"),py::arg("radius"));
 
+    py::class_<ExecutionSpace>(m,"ExecutionSpace")
+      .def(py::init<>());
+
+    // m.def("initialize",&Kokkos::initialize);
+    m.def("finalize",&Kokkos::finalize);
+
 }
 
 
