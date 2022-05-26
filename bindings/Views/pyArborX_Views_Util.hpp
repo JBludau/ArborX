@@ -9,7 +9,7 @@
 
 #include "config.hpp"
 
-using PointView = Kokkos::View<ArborX::Point *,MemorySpace>;
+// using PointView = Kokkos::View<ArborX::Point *,MemorySpace>;
 
 
 // template<typename ViewType>
@@ -21,7 +21,20 @@ using PointView = Kokkos::View<ArborX::Point *,MemorySpace>;
                                     // name)
                  // ,size);
    // return *view;
-// }
+// o}
+//
+
+// auto query_pts_view = query_pts_vec[f];
+// unsigned int const n_queries = query_pts_view.extent(0);
+// Kokkos::View<decltype(ArborX::intersects(ArborX::Sphere{})) *, MemorySpace>
+        // within_queries("within_queries", n_queries);
+    // Kokkos::parallel_for(
+        // "Setup queries",
+        // Kokkos::RangePolicy<ExecutionSpace>(execution_space, 0, n_queries),
+        // KOKKOS_LAMBDA(int i) {
+          // within_queries(i) =
+              // ArborX::intersects(ArborX::Sphere{query_pts_view(i), radius});
+        // });
 
 template<typename ViewType>
 auto create_mirror_view(ViewType const & source)
