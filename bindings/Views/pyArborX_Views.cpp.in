@@ -1,0 +1,79 @@
+#ifndef PYARBORX_VIEW_CPP
+#define PYARBORX_VIEW_CPP
+
+#include <string>
+#include <pybind11/pybind11.h>
+#include <pybind11/functional.h>
+#include <pybind11/operators.h>
+
+#include <ArborX_Point.hpp>
+
+#include "Views/pyArborX_Views_Util.hpp"
+
+
+namespace py = pybind11;
+
+#define CREATE_VIEW(moduleName, viewType, dataType)\
+\
+PYBIND11_MODULE(moduleName, m) { \
+                                 \
+    m.attr("__name__") = std::string("pyArborX.Views.")+std::string(#moduleName); \
+    py::class_<viewType>(m,#moduleName) \
+      .def(py::init<>()) \
+      .def(py::init([](std::string label,size_t size){ \
+            return new viewType{Kokkos::view_alloc( \
+                                                     ExecutionSpace{}, \
+                                                     Kokkos::WithoutInitializing, \
+                                                     label \
+                                                     ),size};})) \
+ \
+    .def("__getitem__", \
+        [](viewType& p,long unsigned int idx){ return p(idx);} \
+        ) \
+\
+    .def("__setitem__", \
+        [](viewType& p,long unsigned int idx, dataType val){p(idx)=val;} \
+        ) \
+\
+    .def("create_mirror_view",&create_mirror_view<viewType>) \
+    .def("deep_copy",&deep_copy<viewType,viewType>,py::arg("src")); \
+        \
+}
+
+#define APPEND_MIRROR(type) type ## _mirror
+
+#define CREATE_VIEW_CLASS(className,viewType,dataType) \
+    py::class_<viewType>(m,#className) \
+      .def(py::init<>()) \
+      .def(py::init([](std::string label,size_t size){ \
+            return new viewType{Kokkos::view_alloc( \
+                                                     ExecutionSpace{}, \
+                                                     Kokkos::WithoutInitializing, \
+                                                     label \
+                                                     ),size};})) \
+ \
+    .def("__getitem__", \
+        [](viewType& p,long unsigned int idx){ return p(idx);} \
+        ) \
+\
+    .def("__setitem__", \
+        [](viewType& p,long unsigned int idx, dataType val){p(idx)=val;} \
+        ) \
+    .def("create_mirror_view",&create_mirror_view<viewType>) \
+    .def("deep_copy",&deep_copy<viewType,decltype(create_mirror_view(std::declval<viewType>()))>,py::arg("src")); \
+
+#define CREATE_VIEW_MODULE(moduleName, viewType, dataType)\
+\
+PYBIND11_MODULE(moduleName, m) { \
+  m.attr("__name__") = std::string("pyArborX.Views.")+std::string(#moduleName); \
+  CREATE_VIEW_CLASS(moduleName,viewType,dataType); \
+  using MirrorType = decltype(create_mirror_view(std::declval<viewType>())); \
+  using MirrorDataType = dataType; \
+  CREATE_VIEW_CLASS(moduleName ## _mirror,MirrorType,MirrorDataType); \
+}
+
+
+// CREATE_VIEW(@VIEW_NAME@,@VIEW_TYPE@,@VIEW_BASE_TYPE@);
+CREATE_VIEW_MODULE(@VIEW_NAME@,@VIEW_TYPE@,@VIEW_BASE_TYPE@);
+
+#endif

@@ -10,15 +10,22 @@
 
 
 // instantiation of all template arguments by hand, as there is no interface for these ... for now
-using ExecutionSpace = Kokkos::Cuda;
+using ExecutionSpace = Kokkos::DefaultExecutionSpace;
 using MemorySpace = ExecutionSpace::memory_space;
 // using MemorySpace = Kokkos::CudaUVMSpace;
 
+using intView1DBaseType = int;
 using intView1DType = Kokkos::View<int *,MemorySpace>;
-using PrimitivesBaseType = ArborX::Point;
-using Primitives = Kokkos::View<PrimitivesBaseType *, MemorySpace>;
-using PredicatesBaseType = decltype(ArborX::intersects(ArborX::Sphere{}));
-using Predicates = Kokkos::View<PredicatesBaseType *, MemorySpace>;
+
+using PointViewBaseType = ArborX::Point;
+using PointViewType = Kokkos::View<PointViewBaseType *, MemorySpace>;
+
+using IntersectViewBaseType = decltype(ArborX::intersects(ArborX::Sphere{}));
+using IntersectViewType = Kokkos::View<IntersectViewBaseType *, MemorySpace>;
+
+using Primitives = PointViewType;
+using Predicates = IntersectViewType;
+
 using SpaceFillingCurve = ArborX::Experimental::Morton64;
 
 #endif

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
+find_package(ArborX REQUIRED)
 find_package(HDF5 COMPONENTS CXX)
 add_executable(ArborX_Protein.exe example_protein.cpp)
 target_link_libraries(ArborX_Protein.exe ArborX::ArborX HDF5::HDF5)
