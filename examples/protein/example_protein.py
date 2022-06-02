@@ -1,6 +1,4 @@
 import mdtraj as md
-#  import kokkos as k
-#  import pykokkos as pk
 import pyArborX as aX
 
 import os
@@ -46,47 +44,37 @@ def run():
 
     execution_space=aX.ExecutionSpace()
     #  for frame in range(t.n_frames):
-    #  for frame in range(1):
+    for frame in range(1):
 
-        #  queryPoints_device = aX.PointView('queryPoints_device',qi.size)
-        #  databasePoints_device = aX.PointView('databasePoints_device',bi.size)
+        queryPoints_device = aX.PointView('queryPoints_device',qi.size)
+        databasePoints_device = aX.PointView('databasePoints_device',bi.size)
 
-        #  queryPoints_host = queryPoints_device.create_mirror_view()
-        #  databasePoints_host = databasePoints_device.create_mirror_view()
+        queryPoints_host = queryPoints_device.create_mirror_view()
+        databasePoints_host = databasePoints_device.create_mirror_view()
 
-        #  convertFrame(t,frame,qi,queryPoints_host)
-        #  convertFrame(t,frame,bi,databasePoints_host)
+        convertFrame(t,frame,qi,queryPoints_host)
+        convertFrame(t,frame,bi,databasePoints_host)
 
-        #  queryPoints_device.deep_copy(queryPoints_host)
-        #  databasePoints_device.deep_copy(databasePoints_host)
+        queryPoints_device.deep_copy(queryPoints_host)
+        databasePoints_device.deep_copy(databasePoints_host)
 
-        #  withinQueries_device = aX.generateWithinQueries_device(execution_space,queryPoints_device,qi.size,radius)
+        withinQueries_device = aX.generateWithinQueries_device(execution_space,queryPoints_device,qi.size,radius)
 
-        #  bvh = aX.BVH(execution_space,databasePoints_device)
+        bvh = aX.BVH(execution_space,databasePoints_device)
 
-        #  indices_device = aX.intView1D('indices_device',0)
-        #  offsets_device = aX.intView1D('offsets_device',0)
+        indices_device = aX.intView1D('indices_device',0)
+        offsets_device = aX.intView1D('offsets_device',0)
 
-        #  bvh.query(execution_space,withinQueries_device,indices_device,offsets_device)
+        bvh.query(execution_space,withinQueries_device,indices_device,offsets_device)
 
-        #  indices_host = aX.create_mirror_view()
-        #  offsets_host = aX.create_mirror_view()
+        indices_host = indices_device.create_mirror_view()
+        offsets_host = offsets_device.create_mirror_view()
 
 
 
 
 if __name__ == '__main__':
     aX.initialize()
-    #  aX.ScopeGuard()
-    aX.Util.printConfig()
-    execution_space=aX.ExecutionSpace()
-
-    queryPoints_device = aX.PointView('queryPoints_device',50)
-    print(queryPoints_device[0])
-    #  view = k.array([2, 2], dtype=k.double, space=k.Cuda,
-                    #  layout=k.LayoutRight, trait=k.RandomAccess,
-                    #  dynamic=False)
-    #  os.kill(os.getpid(), signal.SIGUSR1)
-
-    #  run()
+    aX.printConfig()
+    run()
     aX.finalize()
