@@ -1,6 +1,7 @@
 import mdtraj as md
 import pyArborX as aX
 
+import time
 import os
 import signal
 
@@ -14,6 +15,14 @@ def convertFrame(basedata, frameNo: int,indices, points ):
         points[counter][2] = coordinates[2]
         counter=counter+1
 
+def writeRawResults(indices,offsets,filename):
+    with open(filename,'w') as f:
+        for i in range(indices.size()):
+            f.write(f"{indices[i]} ")
+        f.write("\n")
+        for i in range(offsets.size()):
+            f.write(f"{offsets[i]} ")
+        f.write("\n")
 
 def run():
     #  aX.ScopeGuard(len(sys.argv),sys.argv)
@@ -43,35 +52,62 @@ def run():
     radius = 0.7
 
     execution_space=aX.ExecutionSpace()
-    #  for frame in range(t.n_frames):
-    for frame in range(1):
+    queryPoints_deviceFrames = []
+    queryPoints_hostFrames = []
+    databasePoints_deviceFrames = []
+    databasePoints_hostFrames = []
+    startReadIn = time.time()
+    for frame in range(t.n_frames):
+        queryPoints_deviceFrames.append(aX.PointView('queryPoints_device',qi.size))
+        databasePoints_deviceFrames.append(aX.PointView('databasePoints_device',bi.size))
 
-        queryPoints_device = aX.PointView('queryPoints_device',qi.size)
-        databasePoints_device = aX.PointView('databasePoints_device',bi.size)
+        queryPoints_hostFrames.append(queryPoints_deviceFrames[frame].create_mirror_view())
+        databasePoints_hostFrames.append(databasePoints_deviceFrames[frame].create_mirror_view())
 
-        queryPoints_host = queryPoints_device.create_mirror_view()
-        databasePoints_host = databasePoints_device.create_mirror_view()
+        convertFrame(t,frame,qi,queryPoints_hostFrames[frame])
+        convertFrame(t,frame,bi,databasePoints_hostFrames[frame])
 
-        convertFrame(t,frame,qi,queryPoints_host)
-        convertFrame(t,frame,bi,databasePoints_host)
+        queryPoints_deviceFrames[frame].deep_copy(queryPoints_hostFrames[frame])
+        databasePoints_deviceFrames[frame].deep_copy(databasePoints_hostFrames[frame])
 
-        queryPoints_device.deep_copy(queryPoints_host)
-        databasePoints_device.deep_copy(databasePoints_host)
+        print(f"read frame {frame}")
 
-        withinQueries_device = aX.generateWithinQueries_device(execution_space,queryPoints_device,qi.size,radius)
+    endReadIn=time.time()
+    for frame in range(t.n_frames):
+    #  for frame in range(1):
 
-        bvh = aX.BVH(execution_space,databasePoints_device)
+        print(f"runing setup for frame {frame}")
+
+        withinQueries_device = aX.generateWithinQueries_device(execution_space,queryPoints_deviceFrames[frame],queryPoints_deviceFrames[frame].size(),radius)
+
+        bvh = aX.BVH(execution_space,databasePoints_deviceFrames[frame])
 
         indices_device = aX.intView1D('indices_device',0)
         offsets_device = aX.intView1D('offsets_device',0)
 
+        print(f"runing query for frame {frame}")
+        startQueryTime = time.time()
         bvh.query(execution_space,withinQueries_device,indices_device,offsets_device)
+        endQueryTime = time.time()
+
+        print(f"copying data back to host for frame {frame}")
 
         indices_host = indices_device.create_mirror_view()
         offsets_host = offsets_device.create_mirror_view()
 
+        indices_host.deep_copy(indices_device)
+        offsets_host.deep_copy(offsets_device)
 
+        print(f"writing output for frame {frame}")
 
+        #  writeRawResults(indices_host,offsets_host,"arborx_raw.txt")
+
+        print(f"finished frame {frame}")
+    endQuery = time.time()
+
+    print(f"readin time {endReadIn-startReadIn}")
+    print(f"query loop time {endQuery-endReadIn}")
+    print(f"query time single run {endQueryTime-startQueryTime}")
 
 if __name__ == '__main__':
     aX.initialize()
