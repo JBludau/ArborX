@@ -1,0 +1,42 @@
+#ifndef PYARBORX_@VIEW_NAME@_CPP
+#define PYARBORX_@VIEW_NAME@_CPP
+
+#include <pybind11/pybind11.h>
+#include <ArborX_Point.hpp>
+
+#include "pyArborX_Views_Util.hpp"
+#include "config.hpp"
+
+@VIEW_INCLUDE@
+
+namespace py = pybind11;
+
+#define CREATE_VIEW_CLASS(className,viewType,dataType) \
+    py::class_<viewType>(m,#className) \
+      .def(py::init<>()) \
+      .def(py::init([](std::string label,size_t size){ \
+            return new viewType{Kokkos::view_alloc( \
+                                                     ExecutionSpace{}, \
+                                                     Kokkos::WithoutInitializing, \
+                                                     label \
+                                                     ),size};})) \
+ \
+    .def("__getitem__", \
+        [](viewType& p,long unsigned int idx){ return p(idx);} \
+        ) \
+\
+    .def("__setitem__", \
+        [](viewType& p,long unsigned int idx, dataType val){p(idx)=val;} \
+        ) \
+    .def("create_mirror_view",&create_mirror_view<viewType>) \
+    .def("deep_copy",&deep_copy<viewType,decltype(create_mirror_view(std::declval<viewType>()))>,py::arg("src"));
+
+
+void generate@VIEW_NAME@Wrapper(py::module & m) {
+  CREATE_VIEW_CLASS(@VIEW_NAME@,@VIEW_TYPE@,@VIEW_BASE_TYPE@);
+  using MirrorType = decltype(create_mirror_view(std::declval<@VIEW_TYPE@>()));
+  using MirrorDataType = @VIEW_BASE_TYPE@;
+  CREATE_VIEW_CLASS(@VIEW_NAME@_mirror,MirrorType,MirrorDataType);
+}
+
+#endif

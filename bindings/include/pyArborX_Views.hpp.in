@@ -1,0 +1,10 @@
+#ifndef PYARBORX_@VIEW_NAME@_HPP
+#define PYARBORX_@VIEW_NAME@_HPP
+
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
+
+void generate@VIEW_NAME@Wrapper(py::module & m);
+
+#endif
