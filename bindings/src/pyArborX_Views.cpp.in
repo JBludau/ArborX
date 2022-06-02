@@ -11,7 +11,7 @@
 
 namespace py = pybind11;
 
-#define CREATE_VIEW_CLASS(className,viewType,dataType) \
+#define CREATE_VIEW_CLASS(className,viewType,dataType,deepCopyType) \
     py::class_<viewType>(m,#className) \
       .def(py::init<>()) \
       .def(py::init([](std::string label,size_t size){ \
@@ -21,6 +21,7 @@ namespace py = pybind11;
                                                      label \
                                                      ),size};})) \
  \
+    .def("size",[](viewType& p){return p.size();}) \
     .def("__getitem__", \
         [](viewType& p,long unsigned int idx){ return p(idx);} \
         ) \
@@ -29,14 +30,14 @@ namespace py = pybind11;
         [](viewType& p,long unsigned int idx, dataType val){p(idx)=val;} \
         ) \
     .def("create_mirror_view",&create_mirror_view<viewType>) \
-    .def("deep_copy",&deep_copy<viewType,decltype(create_mirror_view(std::declval<viewType>()))>,py::arg("src"));
+    .def("deep_copy",&deep_copy<viewType,deepCopyType>,py::arg("src"));
 
 
 void generate@VIEW_NAME@Wrapper(py::module & m) {
-  CREATE_VIEW_CLASS(@VIEW_NAME@,@VIEW_TYPE@,@VIEW_BASE_TYPE@);
+  CREATE_VIEW_CLASS(@VIEW_NAME@,@VIEW_TYPE@,@VIEW_BASE_TYPE@,decltype(create_mirror_view(std::declval<@VIEW_TYPE@>())));
   using MirrorType = decltype(create_mirror_view(std::declval<@VIEW_TYPE@>()));
   using MirrorDataType = @VIEW_BASE_TYPE@;
-  CREATE_VIEW_CLASS(@VIEW_NAME@_mirror,MirrorType,MirrorDataType);
+  CREATE_VIEW_CLASS(@VIEW_NAME@_mirror,MirrorType,MirrorDataType,@VIEW_TYPE@);
 }
 
 #endif
