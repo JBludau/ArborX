@@ -8,10 +8,12 @@ import signal
 
 def convertFrame(basedata, frameNo: int,indices, points ):
 
-    for index in indices:
-        points[index][0] = basedata.xyz[frameNo,index,0]
-        points[index][1] = basedata.xyz[frameNo,index,1]
-        points[index][2] = basedata.xyz[frameNo,index,2]
+    for index in range(len(indices)):
+        point = aX.Point()
+        point[0] = basedata.xyz[frameNo,indices[index],0]
+        point[1] = basedata.xyz[frameNo,indices[index],1]
+        point[2] = basedata.xyz[frameNo,indices[index],2]
+        points[index]=point
 
 def writeRawResults(indices,offsets,filename):
     with open(filename,'w') as f:
@@ -23,10 +25,6 @@ def writeRawResults(indices,offsets,filename):
         f.write("\n")
 
 def run():
-    #  aX.ScopeGuard(len(sys.argv),sys.argv)
-    #  k.set_default_space(pk.OpenMP)
-    #  pk.enable_uvm()
-    ## READIN
 
     t = md.load('./data/trajectory.xtc', top='./data/coordinates.gro')
     # The trajectory has 1251 frames
@@ -105,7 +103,7 @@ def run():
 
     print(f"readin time {endReadIn-startReadIn}")
     print(f"query loop time {endQuery-endReadIn}")
-    print(f"query time single run {endQueryTime-startQueryTime}")
+    print(f"query time last run {endQueryTime-startQueryTime}")
 
 if __name__ == '__main__':
     aX.initialize()
