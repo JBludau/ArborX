@@ -30,7 +30,7 @@ def run():
     # The trajectory has 1251 frames
     print("n total frames", t.n_frames)
     # the trajectory is quite large, so for testing we can just use the first 10 frames:
-    t = t[:10]
+    t = t[:100]
     print("reduces n frames", t.n_frames)
 
     # t is the trajectory object, and t.xyz stores the xyz coordinates.
@@ -67,13 +67,15 @@ def run():
         databasePoints_deviceFrames[frame].deep_copy(databasePoints_hostFrames[frame])
 
         print(f"read frame {frame}")
+        execution_space.fence()
 
     endReadIn=time.time()
     for frame in range(t.n_frames):
     #  for frame in range(1):
 
-        print(f"runing setup for frame {frame}")
+        #  print(f"runing setup for frame {frame}")
 
+        startQueryTime = time.time()
         withinQueries_device = aX.generateWithinQueries_device(execution_space,queryPoints_deviceFrames[frame],queryPoints_deviceFrames[frame].size(),radius)
 
         bvh = aX.BVH(execution_space,databasePoints_deviceFrames[frame])
@@ -81,12 +83,11 @@ def run():
         indices_device = aX.intView1D('indices_device',0)
         offsets_device = aX.intView1D('offsets_device',0)
 
-        print(f"runing query for frame {frame}")
-        startQueryTime = time.time()
+        #  print(f"runing query for frame {frame}")
         bvh.query(execution_space,withinQueries_device,indices_device,offsets_device)
         endQueryTime = time.time()
 
-        print(f"copying data back to host for frame {frame}")
+        #  print(f"copying data back to host for frame {frame}")
 
         indices_host = indices_device.create_mirror_view()
         offsets_host = offsets_device.create_mirror_view()
@@ -94,11 +95,11 @@ def run():
         indices_host.deep_copy(indices_device)
         offsets_host.deep_copy(offsets_device)
 
-        print(f"writing output for frame {frame}")
+        #  print(f"writing output for frame {frame}")
 
         #  writeRawResults(indices_host,offsets_host,"arborx_raw.txt")
 
-        print(f"finished frame {frame}")
+        #  print(f"finished frame {frame}")
     endQuery = time.time()
 
     print(f"readin time {endReadIn-startReadIn}")
