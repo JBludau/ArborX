@@ -8,7 +8,9 @@ namespace py = pybind11;
 void generateExecutionSpaceWrapper(py::module &m)
 {
   py::class_<ExecutionSpace>(m, "ExecutionSpace")
-      .def(py::init<>([]() { return new ExecutionSpace{}; }));
+      .def(py::init<>([]() { return new ExecutionSpace{}; }))
+
+      .def("fence", py::overload_cast<>(&ExecutionSpace::fence, py::const_));
 }
 
 #endif
