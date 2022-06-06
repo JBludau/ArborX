@@ -8,12 +8,10 @@ import signal
 
 def convertFrame(basedata, frameNo: int,indices, points ):
 
-    counter = 0
-    for coordinates in basedata.xyz[frameNo,indices]:
-        points[counter][0] = coordinates[0]
-        points[counter][1] = coordinates[1]
-        points[counter][2] = coordinates[2]
-        counter=counter+1
+    for index in indices:
+        points[index][0] = basedata.xyz[frameNo,index,0]
+        points[index][1] = basedata.xyz[frameNo,index,1]
+        points[index][2] = basedata.xyz[frameNo,index,2]
 
 def writeRawResults(indices,offsets,filename):
     with open(filename,'w') as f:
