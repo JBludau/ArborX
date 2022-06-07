@@ -12,12 +12,8 @@ pyArborX additionally requires [pybind11](https://pybind11.readthedocs.io/en/sta
 
 The only toolchain that was tested for this build is [cmake](https://cmake.org/). Cmake must be able to find all above mentioned packages.
 
-The bindings are build with Cmake as usual (out of source build). In this process Cmake will generate several of the source files for the bindings in order to allow for easy binding to capabilities of ArborX.
-The compiler used to build the bindings should be the one that kokkos recommends depending on the configuration. E.g for using cuda as backend the nvcc-wapper should be used.
-````
-cmake -DCMAKE_CXX_COMPILER=<path_to_kokkos_install>/bin/nvcc_wrapper
-````
-#Installation using python pip
+The bindings are build with Cmake as usual (out of source build). In this process Cmake will generate several of the source files for the bindings in order to allow for easy integration of other capabilities inside ArborX.
+The compiler used to build the bindings should be the one that kokkos recommends depending on the configuration. E.g for using cuda as backend the nvcc-wapper should be used e.g. `-DCMAKE_CXX_COMPILER=<path_to_kokkos_install>/bin/nvcc_wrapper`.
 After building the bindings (e.g. make), pip can be used to install the bindings into the python environment. As the state of the binding is far from being a full package, only development install is supported.
 For this run `pip install --user -e .` in the Cmake build directory.
 
@@ -28,7 +24,7 @@ The example contains both a cpp and a python version of the same query.
 
 Citing pyArborX
 -------------
-Please notify bludauj(at)ornl.gov
+Please notify <bludauj@ornl.gov>
 
 License
 -------
