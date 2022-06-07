@@ -37,6 +37,9 @@ string(REPLACE ";" " " MODULE_INCLUDES "${MODULE_INCLUDES}")
 
 configure_file(pyArborX.cpp.in generated_files/pyArborX.cpp)
 
+#copy setup.py for development install to binary dir
+file(COPY ${PROJECT_SOURCE_DIR}/setup.py DESTINATION ${PROJECT_BINARY_DIR}/setup.py)
+
 PYBIND11_ADD_MODULE(pyArborX generated_files/pyArborX.cpp ${PY_SRC})
 target_include_directories(pyArborX PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(pyArborX PUBLIC ${PROJECT_BINARY_DIR}/generated_files)
