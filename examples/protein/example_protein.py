@@ -106,6 +106,25 @@ def run():
     print(f"query loop time {endQuery-endReadIn}")
     print(f"query time last run {endQueryTime-startQueryTime}")
 
+    #deleting all arborx items (this has to be done, as the python garbage collector is currently not respecting the kokkos finalize
+    #this is especially ugly as you can not call delete on something still inside a list, so it has to be popped, then assigned, then deleted, as del does not deal with temporaries
+    for frame in range(t.n_frames):
+        a=queryPoints_hostFrames.pop()
+        del(a)
+        a=queryPoints_deviceFrames.pop()
+        del(a)
+        a=databasePoints_hostFrames.pop()
+        del(a)
+        a=databasePoints_deviceFrames.pop()
+        del(a)
+    del(withinQueries_device)
+    del(bvh)
+    del(indices_host)
+    del(indices_device)
+    del(offsets_host)
+    del(offsets_device)
+
+
 if __name__ == '__main__':
     aX.initialize()
     aX.printConfig()
