@@ -7,15 +7,18 @@ Installation
 ------------
 The build instructions here are for Unix systems. Building pyArborX in Windows has not been tested.
 All build requirements for [ArborX](https://github.com/arborx/ArborX/wiki/Build) have to be fulfilled.
-In case Cuda is used as a backend to run the computations on Nvidia-GPUs `-DKokkos_ENABLE_CUDA_LAMBDA` must be enabeled.
+In case Cuda is used as a backend to run the computations on Nvidia-GPUs `-DKokkos_ENABLE_CUDA_LAMBDA` must be enabeled when compiling Kokkos.
 pyArborX additionally requires [pybind11](https://pybind11.readthedocs.io/en/stable/index.html).
 
 The only toolchain that was tested for this build is [cmake](https://cmake.org/). Cmake must be able to find all above mentioned packages.
 
 The bindings are build with Cmake as usual (out of source build). In this process Cmake will generate several of the source files for the bindings in order to allow for easy integration of other capabilities inside ArborX.
-The compiler used to build the bindings should be the one that kokkos recommends depending on the configuration. E.g for using cuda as backend the nvcc-wapper should be used e.g. `-DCMAKE_CXX_COMPILER=<path_to_kokkos_install>/bin/nvcc_wrapper`.
+The compiler used to build the bindings should be the one that kokkos recommends depending on the configuration. E.g for using cuda as backend the nvcc-wapper should be used e.g. `-DCMAKE_CXX_COMPILER=<path_to_kokkos_install>/bin/nvcc_wrapper`. To enable the bindings to be compiled, build ArboX with `-DARBORX_ENABLE_PYTHON_BINDINGS=ON`.
+
+An exemplary compile command would be `cmake .. -DCMAKE_CXX_COMPILER=/kokkos/bin/nvcc_wrapper -DARBORX_ENABLE_PYTHON_BINDINGS=ON`
+
 After building the bindings (e.g. make), pip can be used to install the bindings into the python environment. As the state of the binding is far from being a full package, only development install is supported.
-For this run `pip install --user -e .` in the Cmake build directory.
+For this run `pip install --user -e .` in the Cmake build/bindings directory (this should contain a lib similar to 'pyArborX.cpython-38-x86_64-linux-gnu.so'). The successful install can be checked with `pip list` ... pyArborX should be listed as package with the build directory as location.
 
 Examples
 --------
