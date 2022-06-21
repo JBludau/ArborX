@@ -92,8 +92,7 @@ class FillK
 public:
   FillK(Kokkos::View<unsigned int *, DeviceType> k)
       : _k(k)
-  {
-  }
+  {}
 
   KOKKOS_INLINE_FUNCTION
   void operator()(int const i) const { _k[i] = 4 - i; }
@@ -159,40 +158,8 @@ void generateHierarchy(Primitives primitives, MortonCodes sorted_morton_codes,
 }
 
 template <typename Node, typename LeafNodes, typename InternalNodes>
-std::enable_if_t<
-    std::is_same<typename Node::Tag, ArborX::Details::NodeWithTwoChildrenTag>{}>
-traverse(LeafNodes leaf_nodes, InternalNodes internal_nodes, Node const *root,
-         std::ostringstream &sol)
-{
-  int n = leaf_nodes.extent(0);
-  auto getNodePtr = [&leaf_nodes, &internal_nodes, &n](int i) {
-    return i < n - 1 ? &internal_nodes(i) : &leaf_nodes(i - n + 1);
-  };
-
-  std::function<void(Node const *, std::ostream &)> traverseRecursive;
-  traverseRecursive = [&leaf_nodes, &internal_nodes, &getNodePtr,
-                       &traverseRecursive](Node const *node, std::ostream &os) {
-    if (node->isLeaf())
-    {
-      os << "L" << node - leaf_nodes.data();
-    }
-    else
-    {
-      os << "I" << node - internal_nodes.data();
-      for (Node const *child :
-           {getNodePtr(node->left_child), getNodePtr(node->right_child)})
-        traverseRecursive(child, os);
-    }
-  };
-
-  traverseRecursive(root, sol);
-}
-
-template <typename Node, typename LeafNodes, typename InternalNodes>
-std::enable_if_t<std::is_same<typename Node::Tag,
-                              ArborX::Details::NodeWithLeftChildAndRopeTag>{}>
-traverse(LeafNodes leaf_nodes, InternalNodes internal_nodes, Node const *root,
-         std::ostringstream &sol)
+void traverse(LeafNodes leaf_nodes, InternalNodes internal_nodes,
+              Node const *root, std::ostringstream &sol)
 {
   int n = leaf_nodes.extent(0);
   auto getNodePtr = [&leaf_nodes, &internal_nodes, &n](int i) {
@@ -223,11 +190,9 @@ traverse(LeafNodes leaf_nodes, InternalNodes internal_nodes, Node const *root,
 namespace Test
 {
 struct FakePrimitive
-{
-};
+{};
 struct FakeBoundingVolume
-{
-};
+{};
 KOKKOS_FUNCTION void expand(FakeBoundingVolume, FakeBoundingVolume) {}
 KOKKOS_FUNCTION void expand(FakeBoundingVolume, FakePrimitive) {}
 } // namespace Test
@@ -266,41 +231,20 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(example_tree_construction, DeviceType,
   // clang-format on
   BOOST_TEST_MESSAGE("ref = " << ref.str());
 
-  {
-    using Node = ArborX::Details::NodeWithTwoChildren<Test::FakeBoundingVolume>;
+  using Node =
+      ArborX::Details::NodeWithLeftChildAndRope<Test::FakeBoundingVolume>;
 
-    Kokkos::View<Node *, DeviceType> leaf_nodes("Testing::leaf_nodes", 0);
-    Kokkos::View<Node *, DeviceType> internal_nodes("Testing::internal_nodes",
-                                                    0);
-    generateHierarchy(primitives, sorted_morton_codes, leaf_nodes,
-                      internal_nodes);
+  Kokkos::View<Node *, DeviceType> leaf_nodes("Testing::leaf_nodes", 0);
+  Kokkos::View<Node *, DeviceType> internal_nodes("Testing::internal_nodes", 0);
+  generateHierarchy(primitives, sorted_morton_codes, leaf_nodes,
+                    internal_nodes);
 
-    auto const *root = internal_nodes.data();
+  auto const *root = internal_nodes.data();
 
-    std::ostringstream sol;
-    traverse(leaf_nodes, internal_nodes, root, sol);
+  std::ostringstream sol;
+  traverse(leaf_nodes, internal_nodes, root, sol);
 
-    BOOST_TEST_MESSAGE("sol(node_with_two_children) = " << sol.str());
+  BOOST_TEST_MESSAGE("sol(node_with_left_child_and_rope) = " << sol.str());
 
-    BOOST_TEST(sol.str() == ref.str());
-  }
-  {
-    using Node =
-        ArborX::Details::NodeWithLeftChildAndRope<Test::FakeBoundingVolume>;
-
-    Kokkos::View<Node *, DeviceType> leaf_nodes("Testing::leaf_nodes", 0);
-    Kokkos::View<Node *, DeviceType> internal_nodes("Testing::internal_nodes",
-                                                    0);
-    generateHierarchy(primitives, sorted_morton_codes, leaf_nodes,
-                      internal_nodes);
-
-    auto const *root = internal_nodes.data();
-
-    std::ostringstream sol;
-    traverse(leaf_nodes, internal_nodes, root, sol);
-
-    BOOST_TEST_MESSAGE("sol(node_with_left_child_and_rope) = " << sol.str());
-
-    BOOST_TEST(sol.str() == ref.str());
-  }
+  BOOST_TEST(sol.str() == ref.str());
 }

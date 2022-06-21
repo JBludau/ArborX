@@ -23,8 +23,6 @@
 
 #include <Kokkos_Core.hpp>
 
-#if KOKKOS_VERSION >= 30500
-
 namespace ArborX
 {
 namespace Details
@@ -122,8 +120,7 @@ public:
                                  (static_cast<unsigned long long>(source))
                                      << target_shift)}
       , weight{weight}
-  {
-  }
+  {}
   KOKKOS_FUNCTION constexpr DirectedEdge() = default;
   KOKKOS_FUNCTION explicit constexpr operator WeightedEdge()
   {
@@ -144,8 +141,7 @@ struct FindComponentNearestNeighbors
   LowerBounds _lower_bounds;
 
   struct WithLowerBounds
-  {
-  };
+  {};
 
   template <class ExecutionSpace>
   FindComponentNearestNeighbors(ExecutionSpace const &space, BVH const &bvh,
@@ -721,5 +717,4 @@ private:
 } // namespace Details
 } // namespace ArborX
 
-#endif
 #endif

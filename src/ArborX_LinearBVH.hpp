@@ -74,7 +74,7 @@ public:
             typename CallbackOrView, typename View, typename... Args>
   std::enable_if_t<Kokkos::is_view<std::decay_t<View>>{}>
   query(ExecutionSpace const &space, Predicates const &predicates,
-        CallbackOrView &&callback_or_view, View &&view, Args &&... args) const
+        CallbackOrView &&callback_or_view, View &&view, Args &&...args) const
   {
     ArborX::query(*this, space, predicates,
                   std::forward<CallbackOrView>(callback_or_view),
@@ -84,22 +84,7 @@ public:
 private:
   friend struct Details::HappyTreeFriends;
 
-#if defined(KOKKOS_ENABLE_CUDA) || defined(KOKKOS_ENABLE_HIP)
-  // Ropes based traversal is only used for CUDA, as it was found to be slower
-  // than regular one for Power9 on Summit.  It is also used with HIP.
-  using node_type = std::conditional_t<
-      std::is_same<MemorySpace,
-#if defined(KOKKOS_ENABLE_CUDA)
-                   Kokkos::CudaSpace
-#else
-                   Kokkos::Experimental::HIPSpace
-#endif
-                   >{},
-      Details::NodeWithLeftChildAndRope<bounding_volume_type>,
-      Details::NodeWithTwoChildren<bounding_volume_type>>;
-#else
-  using node_type = Details::NodeWithTwoChildren<bounding_volume_type>;
-#endif
+  using node_type = Details::NodeWithLeftChildAndRope<bounding_volume_type>;
 
   Kokkos::View<node_type *, MemorySpace> getInternalNodes()
   {
@@ -163,7 +148,7 @@ public:
   // clang-format on
   template <typename FirstArgumentType, typename... Args>
   std::enable_if_t<!Kokkos::is_execution_space<FirstArgumentType>::value>
-  query(FirstArgumentType &&arg1, Args &&... args) const
+  query(FirstArgumentType &&arg1, Args &&...args) const
   {
     base_type::query(typename DeviceType::execution_space{},
                      std::forward<FirstArgumentType>(arg1),
@@ -176,11 +161,11 @@ private:
   friend void ArborX::query(Tree const &tree, ExecutionSpace const &space,
                             Predicates const &predicates,
                             CallbackOrView &&callback_or_view, View &&view,
-                            Args &&... args);
+                            Args &&...args);
 
   template <typename FirstArgumentType, typename... Args>
   std::enable_if_t<Kokkos::is_execution_space<FirstArgumentType>::value>
-  query(FirstArgumentType const &space, Args &&... args) const
+  query(FirstArgumentType const &space, Args &&...args) const
   {
     base_type::query(space, std::forward<Args>(args)...);
   }
@@ -247,7 +232,7 @@ BasicBoundingVolumeHierarchy<MemorySpace, BoundingVolume, Enable>::
   Kokkos::Profiling::pushRegion("ArborX::BVH::BVH::compute_linear_ordering");
 
   // map primitives from multidimensional domain to one-dimensional interval
-  using LinearOrderingValueType = KokkosExt::detected_t<
+  using LinearOrderingValueType = Kokkos::detected_t<
       Details::SpaceFillingCurveProjectionArchetypeExpression,
       SpaceFillingCurve, Point>;
   Kokkos::View<LinearOrderingValueType *, MemorySpace> linear_ordering_indices(

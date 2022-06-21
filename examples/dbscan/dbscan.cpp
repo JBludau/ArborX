@@ -186,15 +186,16 @@ void sortAndFilterClusters(ExecutionSpace const &exec_space,
 
   Kokkos::View<int *, MemorySpace> cluster_sizes(
       "ArborX::DBSCAN::cluster_sizes", n);
-  Kokkos::parallel_for("ArborX::DBSCAN::compute_cluster_sizes",
-                       Kokkos::RangePolicy<ExecutionSpace>(exec_space, 0, n),
-                       KOKKOS_LAMBDA(int const i) {
-                         // Ignore noise points
-                         if (labels(i) < 0)
-                           return;
+  Kokkos::parallel_for(
+      "ArborX::DBSCAN::compute_cluster_sizes",
+      Kokkos::RangePolicy<ExecutionSpace>(exec_space, 0, n),
+      KOKKOS_LAMBDA(int const i) {
+        // Ignore noise points
+        if (labels(i) < 0)
+          return;
 
-                         Kokkos::atomic_increment(&cluster_sizes(labels(i)));
-                       });
+        Kokkos::atomic_increment(&cluster_sizes(labels(i)));
+      });
 
   // This kernel serves dual purpose:
   // - it constructs an offset array through exclusive prefix sum, with a
@@ -235,22 +236,22 @@ void sortAndFilterClusters(ExecutionSpace const &exec_space,
   KokkosExt::reallocWithoutInitializing(
       exec_space, cluster_indices,
       KokkosExt::lastElement(exec_space, cluster_offset));
-  Kokkos::parallel_for("ArborX::DBSCAN::compute_cluster_indices",
-                       Kokkos::RangePolicy<ExecutionSpace>(exec_space, 0, n),
-                       KOKKOS_LAMBDA(int const i) {
-                         // Ignore noise points
-                         if (labels(i) < 0)
-                           return;
+  Kokkos::parallel_for(
+      "ArborX::DBSCAN::compute_cluster_indices",
+      Kokkos::RangePolicy<ExecutionSpace>(exec_space, 0, n),
+      KOKKOS_LAMBDA(int const i) {
+        // Ignore noise points
+        if (labels(i) < 0)
+          return;
 
-                         auto offset_pos =
-                             map_cluster_to_offset_position(labels(i));
-                         if (offset_pos != IGNORED_CLUSTER)
-                         {
-                           auto position = Kokkos::atomic_fetch_add(
-                               &cluster_starts(offset_pos), 1);
-                           cluster_indices(position) = i;
-                         }
-                       });
+        auto offset_pos = map_cluster_to_offset_position(labels(i));
+        if (offset_pos != IGNORED_CLUSTER)
+        {
+          auto position =
+              Kokkos::atomic_fetch_add(&cluster_starts(offset_pos), 1);
+          cluster_indices(position) = i;
+        }
+      });
 
   Kokkos::Profiling::popRegion();
 }
@@ -435,12 +436,8 @@ int main(int argc, char *argv[])
   }
   else if (algorithm == "mst")
   {
-#if KOKKOS_VERSION >= 30500
     ArborX::Details::MinimumSpanningTree<MemorySpace> mst(
         exec_space, primitives, core_min_size);
-#else
-    throw std::runtime_error("MST is only available with Kokkos 3.5 or later");
-#endif
   }
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
