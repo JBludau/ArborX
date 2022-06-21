@@ -1,6 +1,5 @@
 project(pyArborX LANGUAGES CXX)
 
-find_package(ArborX REQUIRED)
 find_package(pybind11 REQUIRED)
 
 #choose modules that should be included in the build
