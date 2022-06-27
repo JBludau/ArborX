@@ -30,7 +30,7 @@ def run():
     # The trajectory has 1251 frames
     print("n total frames", t.n_frames)
     # the trajectory is quite large, so for testing we can just use the first 10 frames:
-    t = t[:100]
+    t = t[:10]
     print("reduces n frames", t.n_frames)
 
     # t is the trajectory object, and t.xyz stores the xyz coordinates.
