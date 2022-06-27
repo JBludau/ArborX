@@ -102,7 +102,7 @@ def run():
         #  print(f"finished frame {frame}")
     endQuery = time.time()
 
-    print(f"readin time {endReadIn-startReadIn}")
+    print(f"read in time {endReadIn-startReadIn}")
     print(f"query loop time {endQuery-endReadIn}")
     print(f"query time last run {endQueryTime-startQueryTime}")
 
