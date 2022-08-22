@@ -28,6 +28,10 @@ void generateUtilWrapper(py::module &m)
   m.def("generateWithinQueries_device", &generateWithinQueries_device,
         py::arg("ExecutionSpace"), py::arg("Primitives"), py::arg("size"),
         py::arg("radius"));
+
+  m.def("ArborX_version", &ArborX::version);
+  m.def("ArborX_hash", &ArborX::gitCommitHash);
+  m.def("Kokkos_version", &KokkosExt::version);
 }
 
 #endif
