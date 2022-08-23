@@ -3,8 +3,9 @@ project(pyArborX LANGUAGES CXX)
 find_package(pybind11 REQUIRED)
 
 #choose modules that should be included in the build
-set(PY_MODULES Point Box ExecutionSpace Experimental BVH Util)
+set(PY_MODULES_PRE Point Box ExecutionSpace Experimental BVH)
 set(PY_VIEWS PointView IntersectView intView1D)
+set(PY_MODULES_POST DBSCAN Details Util) #Things that use views in the interface
 
 #generate files for Viewtypes
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/generated_files)
@@ -18,8 +19,8 @@ foreach(PY_VIEW IN LISTS PY_VIEWS)
   configure_file(src/pyArborX_Views.cpp.in generated_files/pyArborX_${PY_VIEW}.cpp)
 endforeach()
 
-# get source files for selected modules
-foreach(PY_MODULE IN LISTS PY_MODULES)
+# get source files for selected pre modules
+foreach(PY_MODULE IN LISTS PY_MODULES_PRE)
   list(APPEND PY_SRC ${PROJECT_SOURCE_DIR}/src/pyArborX_${PY_MODULE}.cpp)
   list(APPEND MODULE_INCLUDES "\n#include \"pyArborX_${PY_MODULE}.hpp\"" )
   list(APPEND MODULE_GENERATORS "\n generate${PY_MODULE}Wrapper(m)")
@@ -30,6 +31,13 @@ foreach(PY_VIEW IN LISTS PY_VIEWS)
   list(APPEND PY_SRC ${PROJECT_BINARY_DIR}/generated_files/pyArborX_${PY_VIEW}.cpp)
   list(APPEND MODULE_INCLUDES "\n#include \"pyArborX_${PY_VIEW}.hpp\"" )
   list(APPEND MODULE_GENERATORS "\n generate${PY_VIEW}Wrapper(m)")
+endforeach()
+
+# get source files for selected post modules
+foreach(PY_MODULE IN LISTS PY_MODULES_POST)
+  list(APPEND PY_SRC ${PROJECT_SOURCE_DIR}/src/pyArborX_${PY_MODULE}.cpp)
+  list(APPEND MODULE_INCLUDES "\n#include \"pyArborX_${PY_MODULE}.hpp\"" )
+  list(APPEND MODULE_GENERATORS "\n generate${PY_MODULE}Wrapper(m)")
 endforeach()
 
 string(REPLACE ";" " " MODULE_INCLUDES "${MODULE_INCLUDES}")
