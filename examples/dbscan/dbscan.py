@@ -69,10 +69,10 @@ def run():
         print(f"-- postprocess      : {endCluster-startCluster}")
         print(f"total time          : {enddbscan-startdbscan}")
 
+        n = primitives.size()
         print(f"#clusters           : {num_clusters}")
-        print(f"#cluster points     : {num_cluster_points} [{100*num_cluster_points / data.size()}]")
-        n = data.size()
-        print(f"#noise points       : {n-num_cluster_points} [{100*(n-num_cluster_points)/data.size()}]")
+        print(f"#cluster points     : {num_cluster_points} [{100*num_cluster_points / n}]")
+        print(f"#noise points       : {n-num_cluster_points} [{100*(n-num_cluster_points)/n}]")
     elif (algorithm == "mst"):
 
         startmst=time.time()
