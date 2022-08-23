@@ -1,6 +1,9 @@
 #ifndef PYARBORX_CONFIG_H
 #define PYARBORX_CONFIG_H
 
+#include <pybind11/stl_bind.h>
+#include <pybind11/stl.h>
+
 #include <ArborX_Point.hpp>
 #include <ArborX_Predicates.hpp>
 #include <ArborX_SpaceFillingCurves.hpp>
@@ -28,4 +31,5 @@ using Predicates = IntersectViewType;
 
 using SpaceFillingCurve = ArborX::Experimental::Morton64;
 
+PYBIND11_MAKE_OPAQUE(std::vector<ArborX::Point>);
 #endif
