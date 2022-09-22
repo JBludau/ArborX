@@ -10,7 +10,7 @@ void generateExecutionSpaceWrapper(py::module &m)
   py::class_<ExecutionSpace>(m, "ExecutionSpace")
       .def(py::init<>([]() { return new ExecutionSpace{}; }))
 
-      .def("fence", &ExecutionSpace::fence,py::arg("name")="Unnamed instance fence" );
+      .def("fence", py::overload_cast<>(&ExecutionSpace::fence, py::const_));
 }
 
 #endif
