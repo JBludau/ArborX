@@ -8,6 +8,7 @@ namespace py = pybind11;
 
 void generateBVHWrapper(py::module &m)
 {
+  py::class_<TraversalPolicy>(m, "Experimental_TraversalPolicy");
 
   m.def("ArborX::Details::sortObjects",
         &ArborX::Details::sortObjects<ExecutionSpace, intView1DType,
@@ -19,12 +20,20 @@ void generateBVHWrapper(py::module &m)
       .def(py::init<ExecutionSpace, Primitives, SpaceFillingCurve>(),
            py::arg("ExecutionSpace"), py::arg("Primitives"),
            py::arg("SpaceFillingCurve") = SpaceFillingCurve())
+      .def(py::init<ExecutionSpace,
+                    Kokkos::View<float **, Kokkos::LayoutLeft, MemorySpace>>())
 
       .def("query",
            &BVH::query<ExecutionSpace const &, Predicates const &,
                        intView1DType &, intView1DType &>,
            py::arg("ExecutionSpace"), py::arg("Predicates"), py::arg("Indices"),
-           py::arg("Offsets"));
+           py::arg("Offsets"))
+
+      .def("query",
+           &BVH::query<ExecutionSpace, PrimitivesWithRadius,
+                       FDBSCANCallback const &>,
+           py::arg("space"), py::arg("Predicates"), py::arg("Callback"),
+           py::arg("Policy") = TraversalPolicy());
 }
 
 #endif

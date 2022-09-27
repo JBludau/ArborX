@@ -1,9 +1,6 @@
 #ifndef PYARBORX_CONFIG_H
 #define PYARBORX_CONFIG_H
 
-#include <pybind11/stl_bind.h>
-#include <pybind11/stl.h>
-
 #include <ArborX_Point.hpp>
 #include <ArborX_Predicates.hpp>
 #include <ArborX_SpaceFillingCurves.hpp>
@@ -11,9 +8,12 @@
 
 #include <Kokkos_Core.hpp>
 
+#include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
+
 // instantiation of all template arguments by hand, as there is no interface for
 // these ... for now
-using ExecutionSpace = Kokkos::DefaultExecutionSpace;
+using ExecutionSpace = Kokkos::Cuda;
 using MemorySpace = ExecutionSpace::memory_space;
 // using MemorySpace = Kokkos::CudaUVMSpace;
 

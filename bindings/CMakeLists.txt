@@ -3,9 +3,9 @@ project(pyArborX LANGUAGES CXX)
 find_package(pybind11 REQUIRED)
 
 #choose modules that should be included in the build
-set(PY_MODULES_PRE Point Box ExecutionSpace Experimental BVH)
+set(PY_MODULES_PRE Point Box ExecutionSpace Experimental)
 set(PY_VIEWS PointView IntersectView intView1D)
-set(PY_MODULES_POST DBSCAN Details Util) #Things that use views in the interface
+set(PY_MODULES_POST Details BVH DBSCAN Util) #Things that use views in the interface
 
 #generate files for Viewtypes
 file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/generated_files)
