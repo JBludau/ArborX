@@ -13,6 +13,13 @@ namespace pyArborXHelper
 std::string pyPrintBox(ArborX::Box const &b);
 }
 
+struct Boxholder{
+  ArborX::Box box;
+};
+
+
 void generateBoxWrapper(py::module &m);
+void generateBoxHolderWrapper(py::module &m);
+void generateBoxHolderFuncs(py::module &m);
 
 #endif
